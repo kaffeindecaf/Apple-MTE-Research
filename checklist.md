@@ -14,20 +14,28 @@ an A19 or M5 device.
 - [x] Identify T8150 = A19 in existing W0lfSword offsets.m data
 - [x] graph.py wikilink verifier
 
-## Tier 1: MTE / EMTE theory mastery
+## Tier 1: MTE / EMTE theory mastery (done 2026-08-31)
 
-- [ ] Read ARM MTE intro doc (S8) end to end, annotate [[01-mte-basics]]
-- [ ] Read ARM EMTE / Armv8.9 feature doc (S9): list every MTE4 feature and
-      what Apple uses
-- [ ] Read Project Zero "MTE as Implemented" parts 1-3 (S12), extract
-      implementation-level gaps relevant to Apple
-- [ ] Read TikTag (S13) and StickyTags (S14) papers, write up the exact
-      speculative primitives Apple claims to be resistant to
-- [ ] Understand FEAT_CPA (checked pointer arithmetic, ARMv9.5): what it
+- [x] Read ARM MTE intro doc (S8) end to end, annotate [[01-mte-basics]]
+- [x] Read ARM EMTE / Armv8.9 feature doc (S9): list every MTE4 feature and
+      what Apple uses. Annotated [[02-emte]]: canonical checking, tag
+      permission, store-only, enhanced fault reporting; Apple uses
+      canonical + sync only
+- [x] Read Project Zero "MTE as Implemented" parts 1-3 (S12), extract
+      implementation-level gaps relevant to Apple. See [[07-attack-surface]]
+      (known/unknown-tag bypass classes, async weaknesses, TCMA1 0xF tag)
+- [x] Read TikTag (S13) and StickyTags (S14) papers, write up the exact
+      speculative primitives Apple claims to be resistant to. See
+      [[07-attack-surface]]: tag-check observability via speculative
+      leakage + contention probing
+- [x] Understand FEAT_CPA (checked pointer arithmetic, ARMv9.5): what it
       would add on top of EMTE, whether A19 has it (check kernelcache hw
-      feature registers)
-- [ ] Compare Linux MTE (S10) and AOSP MTE (S11) vs Apple: prctl/entitlement
-      model, PROT_MTE vs VM_FLAGS_MTE, sync vs async vs asymmetric
+      feature registers). CPA = overflow-checked pointer arithmetic,
+      optional Armv9.4 / mandatory Armv9.5, ID_AA64ISAR3_EL1.CPA.
+      A19 presence: needs T8150 kernelcache check (tier 5 tooling) [HW]
+- [x] Compare Linux MTE (S10) and AOSP MTE (S11) vs Apple: prctl/entitlement
+      model, PROT_MTE vs VM_FLAGS_MTE, sync vs async vs asymmetric.
+      Annotated [[01-mte-basics]]
 
 ## Tier 2: A19 hardware mapping
 

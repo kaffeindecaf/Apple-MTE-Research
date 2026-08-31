@@ -17,17 +17,43 @@ Apple evaluated MTE as a real-time defensive measure and found weaknesses
 
 ## What EMTE adds (MTE4 feature set)
 
+The MTE4 feature set (FEAT_MTE4, Armv8.9, 2022) extends MTE with (S5, S9,
+S22):
+
 - Canonical tag checking: accessing untagged memory from a tagged pointer
   now requires knowing the tag. Closes the globals/BSS hole. This is the
   feature Apple calls out by name (S1).
+- Tag permission: STG/LDG can be denied through untagged PTEs (S5). The
+  page table itself can forbid tag access, not just data access.
 - Store-only tag checking: an additional mode where only store operations
   are checked, for performance-sensitive contexts (S6, S22).
 - Enhanced fault reporting: all non-address bits reported on a tag check
   fault, giving the kernel more diagnostic info (S6).
-- Tag permission: STG/LDG can be denied through untagged PTEs (S5).
-- Related ARMv9.5 work: FEAT_CPA (checked pointer arithmetic), which makes
-  pointer arithmetic itself checked. Not part of MTE4 but adjacent; open
-  question whether Apple silicon implements it (checklist tier 1).
+- Checked Pointer Arithmetic (FEAT_CPA) is the adjacent Armv9.5 work, not
+  part of MTE4 itself but builds on the same tagged-pointer model. See
+  below.
+
+What Apple actually uses of this: canonical tag checking (their headline
+feature), synchronous checking only, and tag permission via the PTE bit
+for tagged pages. No async, no store-only mode in production (S1, S5, S6).
+
+## FEAT_CPA (checked pointer arithmetic)
+
+Checked pointer arithmetic, Armv9.4+ (S9, ARM 2023 developments blog).
+Adds CPA instructions that perform normal pointer arithmetic but check for
+overflow in the most significant bits of the result, i.e. the pointer
+cannot be arithmetically pushed out of its tagged range without faulting.
+
+- Armv9.4: optional. Armv9.5: mandatory (all Armv9.5 implementations have
+  it).
+- Detected via ID_AA64ISAR3_EL1.CPA field.
+- FEAT_CPA2 extends it (enablement/behavior refinements in later
+  releases).
+- Relevance to Apple: on top of EMTE it would make pointer arithmetic
+  itself checked, closing the "compute a bad pointer then use it" class
+  that tag checks only catch at dereference time. Whether A19 implements
+  it is an open question: check ID_AA64ISAR3_EL1.CPA in the T8150
+  kernelcache (XPF metric) or on device via hw.optional / sysctl [HW].
 
 ## Apple's read on EMTE
 

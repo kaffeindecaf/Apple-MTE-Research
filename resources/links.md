@@ -47,8 +47,16 @@ noted. Everything was checked 2026-08-31.
 ## Academic
 
 - S12: Google Project Zero, MTE As Implemented, parts 1-3 (Mark Brand,
-  2023)
-  https://googleprojectzero.blogspot.com/2023/11/first-handset-with-mte-on-market.html
+  2023). Summary + links:
+  https://projectzero.google/2023/08/summary-mte-as-implemented.html
+  Part 1 (implementation testing):
+  https://projectzero.google/2023/08/mte-as-implemented-part-1.html
+  Part 2 (mitigation case studies):
+  https://projectzero.google/2023/08/mte-as-implemented-part-2-mitigation.html
+  Part 3 (the kernel):
+  https://projectzero.google/2023/08/mte-as-implemented-part-3-kernel.html
+  First handset (Pixel 8, sync-MTE on):
+  https://projectzero.google/2023/11/first-handset-with-mte-on-market.html
 - S13: TikTag: Breaking ARM's MTE with Speculative Execution (arXiv
   2406.08719)
   https://arxiv.org/abs/2406.08719

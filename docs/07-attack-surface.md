@@ -18,6 +18,74 @@ Grounded in S5, S1, S6. Related: [[03-apple-mie]], [[05-allocators]],
 - Anything after a stronger primitive: kernel R/W via non-heap bugs
   (Darksword LPE class) remains an entry point (S5 closing thoughts).
 
+## P0 findings: MTE-as-implemented gaps (S12, all on Pixel-class MTE)
+
+Project Zero's three-part test series (Mark Brand, pre-production MTE
+hardware, 2022-2023) is the reference for what MTE misses in practice.
+Bypass classes, from P0's framing:
+
+1. Known-tag bypass: tag values are the whole game. If an attacker can
+   learn or forge tags, invalid accesses look valid. Tag confidentiality
+   is the mitigation's core assumption.
+2. Unknown-tag bypass: implementation limits that let an exploit proceed
+   despite detectable wrong-tag accesses.
+
+Hardware-level findings (P0 could NOT find these on their test silicon):
+
+- No additional speculative side channel leaking tag-check
+  success/failure beyond ordinary Spectre-class pointer leaks. This is
+  the finding Apple's "side-channel resistant" claim builds on, but note
+  it was tested on pre-production non-Apple silicon (S12 part 1).
+- MTE does not block Spectre: speculative loads with wrong tags still
+  leak data (tested with safeside patch). No tag-check-stall on
+  speculation.
+
+Async-mode-only weaknesses (why Apple insists on sync):
+
+- Syscall arg accesses unchecked in async mode (kernel skips tag checks
+  on user pointers).
+- Sync mode converts kernel accesses of bad user pointers to EFAULT,
+  which is an oracle: syscalls fail cleanly instead of trapping.
+- SIGSEGV is catchable: a corruptible signal handler (Breakpad/Crashpad
+  pattern) disables async MTE process-wide. P0 demonstrated a full
+  bypass against duktape with this.
+- Multi-threaded generic bypass: coerce another thread to do the
+  post-fault work before the faulting thread hits a kernel boundary.
+- Exploitation window math: with CONFIG_HZ_250 (4ms timer), an
+  async-MTE exploit needs ~0.2ms to finish at 95% reliability.
+
+Kernel-specific problems (part 3):
+
+- TCR_ELx.TCMA1: tag 0b1111 pointers bypass checks entirely (needed for
+  phys<->virt conversion), so 0xF is a forgeable "trusted" tag in the
+  kernel. Apple's answer is SPTM-guarded tag storage, not TCMA1 removal.
+- TFSR_EL1 direct access: kernel can clear its own async failure flags.
+- DMA and non-MTE coprocessors bypass checks entirely (Apple's SPTM
+  protects tag storage but not DMA writes to tagged memory).
+- Pointer equality leaks (kcmp, fuse_lock_owner_id, epoll_fdinfo) break
+  tag confidentiality in principle.
+- TYPESAFE_BY_RCU allocations are exempt by design (legit UAF).
+
+## Speculative tag-leak primitives (S13, S14)
+
+- TikTag (S13): speculative-execution gadgets leak MTE tags from
+  arbitrary addresses. 95%+ tag-leak success in <4s, demonstrated
+  against Chrome and the Linux kernel, pushes MTE from probabilistic to
+  ~100% bypass for the targeted access.
+- StickyTags (S14): deterministic round-robin tag assignment by size
+  class eliminates retagging overhead (4% vs 20.2% combined
+  Scudo+MemTagSanitizer), and shows a contention-based side channel
+  reveals whether a tag check mismatches - a probing primitive that
+  works without needing to read the tag itself.
+- The common primitive: tag-check success/failure is observable via
+  microarchitectural effects (speculative leakage or contention),
+  so the "guess 1/16" assumption collapses.
+- Apple's counter-claims (S5): SoC designed to be resistant to TikTag,
+  StickyTags, Spectre-V1 style attacks; PACGA_IRG_RESEED rekeys the tag
+  PRNG every context switch; tag storage is SPTM-guarded (XNU_TAG_STORAGE
+  page type). None of this has been independently tested on A19 silicon
+  - that is checklist Tier 4 item 3.
+
 ## Research angles (ranked by novelty)
 
 1. Tag leakage. Apple claims speculative-execution resistance (TikTag,

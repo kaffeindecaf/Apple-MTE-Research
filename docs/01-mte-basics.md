@@ -50,17 +50,53 @@ No software overhead for the check itself, it happens in silicon.
 - Asynchronous: fault deferred to next context synchronization point. Lower
   cost, race window for the attacker. Apple explicitly refuses this (S1).
 - Asymmetric (ARMv8.7): sync on reads, async on writes. GrapheneOS uses
-  this in userland; Android recommends it over pure async.
+  this in userland; Android recommends it over pure async (S11).
+
+Linux fault delivery (S10): sync -> SIGSEGV with si_code=SEGV_MTESERR and
+precise faulting address (access not performed); async -> SIGSEGV with
+SEGV_MTEAERR and si_addr=0 (faulting address unknown). If SIGSEGV is
+ignored/blocked in sync mode the process dies with a coredump.
 
 ## OS integration (Linux as reference)
 
-- prctl PR_SET_TAGGED_ADDR_CTRL with PR_TAGGED_ADDR_ENABLE, mode bits, tag
-  mask. PROT_MTE on mmap for tagged mappings.
-- execve resets everything: tagging off, no modes, tag mask 0, PSTATE.TCO=0.
-- Android: memtag_heap sanitizer flag, async by default, sync via
-  SANITIZE diag. Kernel MTE on Pixel with async.
-- Apple replaces this whole model with entitlements and VM_FLAGS_MTE, see
-  [[03-apple-mie]] and [[04-xnu-mte]].
+Full Linux userland model, per kernel docs (S10):
+
+- Hardware advertised via HWCAP2_MTE (AT_HWCAP2 auxv).
+- mmap/mprotect flag PROT_MTE (0x20): pages allow access to allocation
+  tags. Only works on MAP_ANONYMOUS and RAM-backed files (tmpfs, memfd);
+  anything else returns -EINVAL. Cannot be cleared by mprotect. Tags set
+  to 0 on first map, preserved on CoW. MADV_DONTNEED / MADV_FREE may clear
+  tags at any point.
+- prctl PR_SET_TAGGED_ADDR_CTRL (55): PR_TAGGED_ADDR_ENABLE, mode bits
+  PR_MTE_TCF_NONE / SYNC / ASYNC, tag mask PR_MTE_TAG_MASK (0xfffe = all
+  15 non-zero tags). Multiple modes allowed; kernel picks per-CPU
+  preferred mode (sysfs cpu<N>/mte_tcf_preferred, default async) else
+  preference order async > asymmetric > sync.
+- PSTATE.TCO disables checking per thread (MSR TCO, #1). Signal handlers
+  always run with PSTATE.TCO=0; restored on sigreturn.
+- No match-all logical tag exists for userspace. Kernel accesses to user
+  memory: unchecked in NONE/ASYNC, best-effort in SYNC, always effective
+  TCO=0.
+- execve resets everything: PR_TAGGED_ADDR_ENABLE=0, no modes, tag mask 0,
+  PSTATE.TCO=0, no PROT_MTE mappings. fork() inherits config + maps.
+- Debug: PTRACE_PEEKMTETAGS / PTRACE_POKEMTETAGS (4-bit tag per byte in
+  iovec), plus NT_ARM_TAGGED_ADDR_CTRL regset. Core dumps carry tags in
+  PT_AARCH64_MEMTAG_MTE segments (p_filesz = p_memsz/32; a 4K page = 128
+  bytes of tags).
+
+Android specifics (S11): MTE is opt-in per process. Build-time
+sanitize:{memtag_heap:true} (async) or +diag (sync); runtime overrides via
+system property arm64.memtag.process.<basename> or env MEMTAG_OPTIONS;
+apps via android:memtagMode=(off|default|sync|async) manifest attribute or
+NATIVE_MEMTAG_[A]SYNC compat change. Allocator tuning: mallopt
+M_MEMTAG_TUNING_BUFFER_OVERFLOW (deterministic adjacent tags, catches
+linear overflow, ~half tag space for UAF) vs M_MEMTAG_TUNING_UAF (random
+tags, ~93% UAF detection). Kernel: CONFIG_KASAN_HW_TAGS (MTE-accelerated
+KASAN), kasan.mode=[sync|async], kasan.fault=[report|panic] (tag checking
+disabled after first report).
+
+Apple replaces this whole model with entitlements and VM_FLAGS_MTE, see
+[[03-apple-mie]] and [[04-xnu-mte]].
 
 ## Fault behavior
 
