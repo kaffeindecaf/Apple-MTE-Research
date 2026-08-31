@@ -89,8 +89,9 @@ Kernel-specific problems (part 3):
 - Apple's counter-claims (S5): SoC designed to be resistant to TikTag,
   StickyTags, Spectre-V1 style attacks; PACGA_IRG_RESEED rekeys the tag
   PRNG every context switch; tag storage is SPTM-guarded (XNU_TAG_STORAGE
-  page type). None of this has been independently tested on A19 silicon
-  - that is checklist Tier 4 item 3.
+  page type). Spectre V1 specifically: attacker must chain 25+ V1
+  sequences for high exploitability (S51). None of this has been
+  independently tested on A19 silicon - that is checklist Tier 4 item 3.
 
 ## Research angles (ranked by novelty)
 

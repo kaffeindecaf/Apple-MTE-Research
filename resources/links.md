@@ -1,6 +1,6 @@
 # External sources
 
-Tagged S1..S50, cited from docs/. Local copies in resources/papers/ are
+Tagged S1..S51, cited from docs/. Local copies in resources/papers/ are
 gitignored (agent-private reference material, not repo content); the
 links below are the source of truth.
 
@@ -180,3 +180,7 @@ links below are the source of truth.
 - S50: pbxscience, iOS 27 sandbox escape resurfaces Filza talk (claims
   of MobileGestalt exploit on iPhone 17 questioned; MIE context)
   https://pbxscience.com/ios-27-sandbox-escape-resurfaces-filza-talk-but-the-iphone-17-story-isnt-what-it-seems
+- S51: sigreturn.com, Apple internals #9: SPTM, TXM and memory tagging
+  (guarded levels, endpoint tables, PPL/TXM/SPTM generation table,
+  Spectre V1 25+ chain figure, XNU_TAG_STORAGE ownership)
+  https://sigreturn.com/blog/sptm-txm-memory-tagging/

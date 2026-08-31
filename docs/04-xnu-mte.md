@@ -98,6 +98,35 @@ hits a different tag on next use (S5 slides 39-45).
 - Tag PRNG reseeded at every context switch, PACGA_IRG_RESEED macro (S5).
 - SoC designed to be side-channel resistant against TikTag, StickyTags,
   Spectre V1 (S1, S5).
+- Spectre V1 detail (S51): Apple's mitigation forces an attacker to
+  chain 25+ V1 sequences for a high exploitability rate. Concrete
+  number, useful for modeling attack cost on A19.
+- Kernel accesses on behalf of an app are subject to the same
+  tag-checking rules as userspace (S2).
+
+## SPTM / TXM context (S51, S15, S16)
+
+The monitor layer MIE sits on, for the generation table:
+
+    Feature          A11-A14, M1      A15+, M2+          A19, M5
+    page tables      PPL              SPTM               SPTM
+    code signing     ppl.c            txm.c              txm.c
+    tag storage      -                -                  SPTM (XNU_TAG_STORAGE)
+
+- ppl.c and txm.c implement the same API (register_code_signature,
+  verify_code_signature, associate_jit_region, toggle_developer_mode,
+  enter_lockdown_mode); enforcement moves to a different monitor per
+  generation (S51).
+- Kernel R/W still reaches everything typed XNU_DEFAULT (most of kernel
+  heap), but not: page tables, read-only zones (credentials, MACF
+  labels), TXM trust-cache slabs, SPTM frame table, Secure Kernel
+  domain (S51).
+- SPTM endpoints: XNU calls endpoint #1, TXM #3, SK via SVC/HVC gated
+  through VBAR_GL2. Darwin 24 had 34 XNU endpoints (0-33); Darwin 25
+  adds 37-42 (S16, S51).
+- MTE tag storage only appears in A19 IPSWs (iPhone18,4 and higher);
+  SPTM defines XNU_TAG_STORAGE as its own page type in the retyping
+  state machine (S16).
 
 ## Open questions
 

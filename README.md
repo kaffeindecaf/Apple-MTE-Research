@@ -23,7 +23,7 @@ kernelcache tooling.
 Plus: [checklist.md](checklist.md) (tiered work queue),
 [graph.md](graph.md) (knowledge graph, verified by
 [scripts/graph.py](scripts/graph.py)),
-[resources/links.md](resources/links.md) (all sources, tagged S1..S50),
+[resources/links.md](resources/links.md) (all sources, tagged S1..S51),
 [resources/local-tools.md](resources/local-tools.md) (kernel-deltas /
 W0lfSword / XPF integration).
 

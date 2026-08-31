@@ -20,7 +20,7 @@ scripts/graph.py verifies them.
     08-research-methods doc  docs/08-research-methods.md
     09-mte-bugs-field doc    docs/09-mte-bugs-field.md
     10-exploit-examples doc  docs/10-exploit-examples.md
-    links        resource    resources/links.md (S1..S50)
+    links        resource    resources/links.md (S1..S51)
     local-tools  resource    resources/local-tools.md
     papers       resource    resources/papers/ (gitignored, local copies only)
     kernel-deltas  repo      ~/Desktop/kernel-deltas (kcwatch feed, T8150 board candidate)
