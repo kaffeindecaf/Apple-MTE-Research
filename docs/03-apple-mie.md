@@ -2,7 +2,7 @@
 
 Apple's production deployment of EMTE, shipped 2025-09-09 on iPhone 17 family
 (A19/A19 Pro) and M5 Macs. Grounded in S1, S2, S3, S4, S5, S6, S7. Related:
-[[02-emte]], [[04-xnu-mte]], [[05-allocators]], [[06-a19-hardware]].
+[02-emte](02-emte.md), [04-xnu-mte](04-xnu-mte.md), [05-allocators](05-allocators.md), [06-a19-hardware](06-a19-hardware.md).
 
 ## Timeline
 
@@ -18,7 +18,7 @@ Apple's production deployment of EMTE, shipped 2025-09-09 on iPhone 17 family
 
 1. Secure typed allocators. Kernel: zalloc hardening + kalloc_type. Userland:
    XZone malloc. These do the heavy lifting and organize memory by type so
-   cross-type exploitation is hard (S1, S5, [[05-allocators]]).
+   cross-type exploitation is hard (S1, S5, [05-allocators](05-allocators.md)).
 2. EMTE in synchronous mode. Used to protect the smaller individual
    allocations inside a type bucket that software allocators cannot defend.
    Apple modeled tag-checking demand and designed silicon to satisfy it (S1).

@@ -16,17 +16,17 @@ an A19 or M5 device.
 
 ## Tier 1: MTE / EMTE theory mastery (done 2026-08-31)
 
-- [x] Read ARM MTE intro doc (S8) end to end, annotate [[01-mte-basics]]
+- [x] Read ARM MTE intro doc (S8) end to end, annotate [01-mte-basics](docs/01-mte-basics.md)
 - [x] Read ARM EMTE / Armv8.9 feature doc (S9): list every MTE4 feature and
-      what Apple uses. Annotated [[02-emte]]: canonical checking, tag
+      what Apple uses. Annotated [02-emte](docs/02-emte.md): canonical checking, tag
       permission, store-only, enhanced fault reporting; Apple uses
       canonical + sync only
 - [x] Read Project Zero "MTE as Implemented" parts 1-3 (S12), extract
-      implementation-level gaps relevant to Apple. See [[07-attack-surface]]
+      implementation-level gaps relevant to Apple. See [07-attack-surface](docs/07-attack-surface.md)
       (known/unknown-tag bypass classes, async weaknesses, TCMA1 0xF tag)
 - [x] Read TikTag (S13) and StickyTags (S14) papers, write up the exact
       speculative primitives Apple claims to be resistant to. See
-      [[07-attack-surface]]: tag-check observability via speculative
+      [07-attack-surface](docs/07-attack-surface.md): tag-check observability via speculative
       leakage + contention probing
 - [x] Understand FEAT_CPA (checked pointer arithmetic, ARMv9.5): what it
       would add on top of EMTE, whether A19 has it (check kernelcache hw
@@ -35,7 +35,7 @@ an A19 or M5 device.
       A19 presence: needs T8150 kernelcache check (tier 5 tooling) [HW]
 - [x] Compare Linux MTE (S10) and AOSP MTE (S11) vs Apple: prctl/entitlement
       model, PROT_MTE vs VM_FLAGS_MTE, sync vs async vs asymmetric.
-      Annotated [[01-mte-basics]]
+      Annotated [01-mte-basics](docs/01-mte-basics.md)
 
 ## Tier 2: A19 hardware mapping
 
@@ -123,3 +123,14 @@ an A19 or M5 device.
 - [ ] Publishable writeup: A19-exclusive features from a researcher POV
 - [ ] Any tier 4 finding that lands -> write it up, offer to PR into
       Apple-Bug-Bounty-Skill or W0lfSword tooling
+
+## Tier 7: field corpus (done 2026-08-31)
+
+- [x] GitHub sweep for A19 / MIE / MTE crashes and bugs, document in
+      [09-mte-bugs-field](docs/09-mte-bugs-field.md) (S25..S34)
+- [x] Document real crash signatures: EXC_ARM_MTE_TAGCHECK_FAIL,
+      MTE_FAIL code 262, SEGV_MTESERR, weak-table faults
+- [x] Exploit examples doc [10-exploit-examples](docs/10-exploit-examples.md): P0 MTETest patterns,
+      TikTag, StickyTags, TCMA1 0xF, EFAULT oracle
+- [x] Convert repo to relative markdown links so GitHub renders the
+      knowledge graph (graph.py now checks md links too)

@@ -1,8 +1,8 @@
 # 04: XNU MTE integration
 
 How the kernel activates, configures, and protects MTE. Grounded in S5
-(OffensiveCon 2026) unless noted. Related: [[03-apple-mie]], [[05-allocators]],
-[[07-attack-surface]].
+(OffensiveCon 2026) unless noted. Related: [03-apple-mie](03-apple-mie.md), [05-allocators](05-allocators.md),
+[07-attack-surface](07-attack-surface.md).
 
 ## Physical memory layout (tag storage)
 
@@ -43,7 +43,7 @@ When MTE activates, XNU:
 
 There are boot-args and posix_spawn flags equivalent to the entitlements
 (S5 slide 20). has_sec_transition=1 is also the gate that switches userland
-from ScalableZone to XZone malloc (S5, [[05-allocators]]).
+from ScalableZone to XZone malloc (S5, [05-allocators](05-allocators.md)).
 
 ## VM layer, userland
 

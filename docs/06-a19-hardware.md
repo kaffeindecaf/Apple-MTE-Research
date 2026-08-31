@@ -1,7 +1,7 @@
 # 06: A19 / A19 Pro hardware
 
 The first Apple silicon with MTE. Grounded in S17, S18, S5. Related:
-[[03-apple-mie]], [[07-attack-surface]].
+[03-apple-mie](03-apple-mie.md), [07-attack-surface](07-attack-surface.md).
 
 ## Identity
 
@@ -55,7 +55,7 @@ memory bandwidth and the GPU neural accelerators.
 
 - MIE: first and only mobile Apple silicon with EMTE. Dedicated CPU area,
   CPU speed, and memory for tag storage, "more than ever before" (S1).
-  Tag storage = 1/32 of DRAM. See [[03-apple-mie]], [[04-xnu-mte]].
+  Tag storage = 1/32 of DRAM. See [03-apple-mie](03-apple-mie.md), [04-xnu-mte](04-xnu-mte.md).
 - Side-channel-resistant MTE design (TikTag/StickyTags/Spectre V1 counter
   claims, unverified publicly).
 - GPU tensor cores (Apple10) and what they mean for GPU memory tagging and

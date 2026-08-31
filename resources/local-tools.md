@@ -1,7 +1,7 @@
 # Local tooling integration
 
 How the existing repos on disk plug into this research. Paths are absolute.
-Related: [[08-research-methods]], [[links]].
+Related: [08-research-methods](../docs/08-research-methods.md), [links](links.md).
 
 ## kernel-deltas (~/Desktop/kernel-deltas)
 

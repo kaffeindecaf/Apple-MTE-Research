@@ -1,8 +1,8 @@
 # 08: Research methods and tooling
 
 How to actually run this research program offline-first, with the local
-repos already on disk. Related: [[07-attack-surface]], [[local-tools]],
-[[links]].
+repos already on disk. Related: [07-attack-surface](07-attack-surface.md), [local-tools](../resources/local-tools.md),
+[links](../resources/links.md).
 
 ## MTE as a microscope
 
@@ -58,7 +58,7 @@ New research workflow:
 - No public Apple documentation on the 70+ process list, tag PRNG, or tag
   storage internals. Expect to derive these.
 
-## Repos on disk (see [[local-tools]])
+## Repos on disk (see [local-tools](../resources/local-tools.md))
 
 - ~/Desktop/kernel-deltas: kcwatch feed, t8030 + t8110 watched, t8103
   defined, T8150 candidate.
@@ -67,8 +67,8 @@ New research workflow:
 
 ## Reading order for a new session
 
-1. [[graph]] to reorient.
-2. [[01-mte-basics]] if MTE theory is cold.
-3. [[03-apple-mie]] for the deployment picture.
+1. [graph](../graph.md) to reorient.
+2. [01-mte-basics](01-mte-basics.md) if MTE theory is cold.
+3. [03-apple-mie](03-apple-mie.md) for the deployment picture.
 4. checklist.md tier that is in flight.
-5. [[local-tools]] before touching kernelcaches.
+5. [local-tools](../resources/local-tools.md) before touching kernelcaches.

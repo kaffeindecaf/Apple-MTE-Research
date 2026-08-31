@@ -1,7 +1,7 @@
 # 01: ARM MTE basics
 
 What Memory Tagging Extension is, from the architecture up. Grounded in S8,
-S10, S11, S20. Related: [[02-emte]], [[03-apple-mie]].
+S10, S11, S20. Related: [02-emte](02-emte.md), [03-apple-mie](03-apple-mie.md).
 
 ## The idea
 
@@ -41,7 +41,7 @@ No software overhead for the check itself, it happens in silicon.
 - Stack: compiler aligns objects to 16 bytes and tags them (aarch64
   -mtag-stack or similar). Sequential over/underflows hit neighboring tags.
 - Globals/static: NOT tagged by standard MTE. This is the hole EMTE closes,
-  see [[02-emte]].
+  see [02-emte](02-emte.md).
 
 ## Checking modes
 
@@ -96,7 +96,7 @@ KASAN), kasan.mode=[sync|async], kasan.fault=[report|panic] (tag checking
 disabled after first report).
 
 Apple replaces this whole model with entitlements and VM_FLAGS_MTE, see
-[[03-apple-mie]] and [[04-xnu-mte]].
+[03-apple-mie](03-apple-mie.md) and [04-xnu-mte](04-xnu-mte.md).
 
 ## Fault behavior
 

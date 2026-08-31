@@ -94,3 +94,36 @@ noted. Everything was checked 2026-08-31.
   https://www.privacyguides.org/posts/2025/09/20/memory-integrity-enforcement-changes-the-game-on-ios
 - S20: HackTricks, Memory Tagging Extension (instructions, granule math)
   https://hacktricks.wiki/en/binary-exploitation/common-binary-protections-and-bypasses/memory-tagging-extension-mte.html
+
+## Field bugs and crashes (GitHub, added 2026-08-31, see
+[09-mte-bugs-field](../docs/09-mte-bugs-field.md))
+
+- S25: FuturaeKit iPhone 17e crash, EXC_ARM_MTE_TAGCHECK_FAIL
+  (Futurae-Technologies/ios-sdk #64, open)
+  https://github.com/Futurae-Technologies/ios-sdk/issues/64
+- S26: GrapheneOS Vanadium MTE crash (Vanadium #1223, open)
+  https://github.com/GrapheneOS/Vanadium/issues/1223
+- S27: macOS 27 beta SwiftUI weak-table MTE fault, FB23066215
+  (cypherair #499, closed; root-caused Apple framework bug)
+  https://github.com/cypherair/cypherair/issues/499
+- S28: Go runtime MTE crash, indexbyte past granule (cake-tech/cake_wallet
+  #2921, closed dup; golang/go#59090)
+  https://github.com/cake-tech/cake_wallet/issues/2921
+  https://github.com/golang/go/issues/59090
+- S29: ZeroTier fails to launch on macOS 26.1 (ZeroTierOne #2540, open,
+  MTE-unconfirmed)
+  https://github.com/zerotier/ZeroTierOne/issues/2540
+- S30: sentry-cocoa: run sample apps with enhanced security capability
+  (#5412, open)
+  https://github.com/getsentry/sentry-cocoa/issues/5412
+- S31: godot C#/.NET iOS 26 XZone allocator trap, heap corruption detected
+  by type-aware allocator (#121736, closed)
+  https://github.com/godotengine/godot/issues/121736
+- S32: fluffychat: request checked-allocations entitlement for MIE
+  (krille-chan/fluffychat #2301, open)
+  https://github.com/krille-chan/fluffychat/issues/2301
+- S33: react-native libgojni.so MTE crash on Pixel 8 Pro
+  (facebook/react-native #44276, closed)
+  https://github.com/facebook/react-native/issues/44276
+- S34: MTE experiments on Apple Silicon macOS (gulmezmerve/mte-examples)
+  https://github.com/gulmezmerve/mte-examples

@@ -1,7 +1,7 @@
 # 05: Allocators (kernel + userland)
 
 The allocator layer is where MTE actually lives. Grounded in S5 unless
-noted. Related: [[03-apple-mie]], [[04-xnu-mte]], [[07-attack-surface]].
+noted. Related: [03-apple-mie](03-apple-mie.md), [04-xnu-mte](04-xnu-mte.md), [07-attack-surface](07-attack-surface.md).
 
 ## Kernel: zalloc
 
@@ -27,7 +27,7 @@ UAF to type confusion is almost impossible, double free is not abusable.
 Before MTE the remaining trick was UAF to object confusion within the same
 type (memory descriptors, mach ports) (S5 slide 35).
 
-MTE integration: see [[04-xnu-mte]] zalloc section. Key numbers: z_tag bit,
+MTE integration: see [04-xnu-mte](04-xnu-mte.md) zalloc section. Key numbers: z_tag bit,
 KMA_TAG, 26.4 runtime submap check, even/odd tag spaces, tag-on-free.
 
 ## Kernel: kalloc / kalloc_type
@@ -95,7 +95,7 @@ binaries are no longer forced to soft-mode (since 26.4) (S5 slide 70, 73).
 
 libpas supports MTE but is temporarily forced to soft-mode. Separate
 30-min-talk-sized scope (S5 slide 62). JSC/WebKit exploitation angle lives
-in [[07-attack-surface]] and checklist tier 4.
+in [07-attack-surface](07-attack-surface.md) and checklist tier 4.
 
 ## Open questions
 

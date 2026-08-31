@@ -1,8 +1,8 @@
 # 07: Attack surface and bypass research
 
 What MIE does not catch, and where a researcher can productively dig.
-Grounded in S5, S1, S6. Related: [[03-apple-mie]], [[05-allocators]],
-[[08-research-methods]].
+Grounded in S5, S1, S6. Related: [03-apple-mie](03-apple-mie.md), [05-allocators](05-allocators.md),
+[08-research-methods](08-research-methods.md).
 
 ## What MTE/MIE does not catch
 

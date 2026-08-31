@@ -2,7 +2,7 @@
 
 The ARMv8.9 (2022) extension set Apple co-designed with ARM. Apple calls the
 result EMTE and builds MIE on it. Grounded in S1, S5, S6, S9, S22. Related:
-[[01-mte-basics]], [[03-apple-mie]].
+[01-mte-basics](01-mte-basics.md), [03-apple-mie](03-apple-mie.md).
 
 ## Why standard MTE was not enough
 
