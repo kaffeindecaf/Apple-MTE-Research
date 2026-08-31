@@ -9,7 +9,8 @@ an A19 or M5 device.
 - [x] Create repo skeleton: README, graph, checklist, docs/, resources/, scripts/
 - [x] Core source sweep: Apple MIE blog (S1), PSG (S2), Xcode docs (S3),
       OffensiveCon 2026 slides (S5), JAMF (S6), 8kSec parts 1-2 (S7)
-- [x] Local copy of OffensiveCon 2026 PDF in resources/papers/
+- [x] Local copy of OffensiveCon 2026 PDF in resources/papers/ (now
+      gitignored; kept as agent-private reference)
 - [x] A19 spec pass: Wikipedia (S17), NotebookCheck (S18)
 - [x] Identify T8150 = A19 in existing W0lfSword offsets.m data
 - [x] graph.py wikilink verifier
@@ -134,3 +135,20 @@ an A19 or M5 device.
       TikTag, StickyTags, TCMA1 0xF, EFAULT oracle
 - [x] Convert repo to relative markdown links so GitHub renders the
       knowledge graph (graph.py now checks md links too)
+
+## Tier 8: 2026 source sweep (done 2026-08-31)
+
+- [x] Sweep for 2026 MTE/MIE developments, add S35..S50 to
+      [links](resources/links.md)
+- [x] CVE-2026-28952: first public kernel exploit surviving MIE
+      (data-only LPE, _zalloc_ro_mut, fixed macOS 26.5). Documented in
+      [07-attack-surface](docs/07-attack-surface.md) + [10-exploit-examples](docs/10-exploit-examples.md)
+- [x] XZone open source: libmalloc-792 doc + memento introspection
+      (S42-S44) folded into [05-allocators](docs/05-allocators.md)
+- [x] A19 die shots / floorplan data (S39-S41) folded into
+      [06-a19-hardware](docs/06-a19-hardware.md)
+- [x] Hands-on MIE experiments (S38), allocator MTE survey (S45),
+      Folded-Tag/IUBIK/NanoTag papers (S46-S48), MTE perf study (S49)
+      added to links
+- [x] .gitignore for agent-private reference material
+      (resources/papers/, downloads, kernelcaches, scratch)

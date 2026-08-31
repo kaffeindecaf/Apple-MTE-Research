@@ -1,7 +1,8 @@
 # External sources
 
-Tagged S1..S24, cited from docs/. Local copies in resources/papers/ where
-noted. Everything was checked 2026-08-31.
+Tagged S1..S50, cited from docs/. Local copies in resources/papers/ are
+gitignored (agent-private reference material, not repo content); the
+links below are the source of truth.
 
 ## Apple primary
 
@@ -127,3 +128,55 @@ noted. Everything was checked 2026-08-31.
   https://github.com/facebook/react-native/issues/44276
 - S34: MTE experiments on Apple Silicon macOS (gulmezmerve/mte-examples)
   https://github.com/gulmezmerve/mte-examples
+
+## 2026 developments (added 2026-08-31)
+
+- S35: Calif blog, First public macOS kernel memory corruption exploit on
+  Apple M5. Data-only LPE surviving MIE, CVE-2026-28952 (fixed macOS
+  26.5). Full 55-page report withheld until patch adoption.
+  https://blog.calif.io/p/first-public-kernel-memory-corruption
+- S36: 9to5Mac, Anthropic Mythos helped Calif build a macOS exploit in
+  five days (2026-05-14)
+  https://9to5mac.com/2026/05/14/calif-team-details-how-anthropic-mythos-helped-build-a-working-macos-exploit-in-five-days/
+- S37: byteiota, Apple M5 MIE kernel exploit details: _zalloc_ro_mut
+  overflow, data-only chain, no tag exception ever triggered
+  https://byteiota.com/apple-m5-mie-kernel-exploit-update-to-macos-26-5-now/
+- S38: octet-stream.net (Tom Bull), Experiments with Memory Integrity
+  Enforcement (2025-12-16): hands-on A19/M5 MIE experiments, heap
+  overflow / UAF demos
+  https://octet-stream.net/b/scb/2025-12-16-experiments-with-memory-integrity-enforcement.html
+- S39: ChipWise, Apple A19 Pro die shot analysis (N3P, ~25-30B
+  transistors, floorplan)
+  https://chipwise.tech/our-portfolio/apple-a19pro-die-shot-analysis/
+- S40: TechPowerUp, A19 Pro & A19 die size analysis (98.6 mm2 vs 105
+  mm2 A18 Pro, ~10% smaller; 32KB cache macro doubling)
+  https://www.techpowerup.com/344025/apple-a19-pro-a19-die-size-analysis-indicates-9-10-smaller-than-a18-models
+- S41: TechInsights, Apple A19 Pro SoC (TSMC N3P) floorplan analysis,
+  TMUA28 die (paywalled)
+  https://www.techinsights.com/blog/apple-a19-pro-soc-tsmc-n3p-floorplan-analysis
+- S42: Apple libmalloc open source, doc/xzone_malloc.md (official XZone
+  design: bucketed type isolation, TINY/SMALL/LARGE/HUGE, mimalloc
+  derivation)
+  https://github.com/apple-oss-distributions/libmalloc/blob/main/doc/xzone_malloc.md
+- S43: Apple Xcode docs, Adopting type-aware memory allocation
+  (malloc_type_* API, compiler-rewritten malloc)
+  https://developer.apple.com/documentation/xcode/adopting-type-aware-memory-allocation
+- S44: df-f.com (Jonathan Levin), Darwin: libsystem_malloc .dylib and
+  XZone (memento introspection of live XZone, zone/bucket internals)
+  https://df-f.com/blog/darwin-libsystem-malloc-dylib-and-xzone
+- S45: darknavy.org, Strengthening the Shield: MTE in Heap Allocators
+  (glibc/scudo/mimalloc MTE implementations compared)
+  https://www.darknavy.org/blog/strengthening_the_shield_mte_in_memory_allocators
+- S46: Folded-Tag: Enhancing memory safety with efficient
+  hardware-supported memory tagging (Computers & Security 2025)
+  https://www.sciencedirect.com/science/article/abs/pii/S0167404825005115
+- S47: IUBIK: Isolating User Bytes in Commodity OS Kernels via Memory
+  Tagging Extensions (IEEE S&P 2025)
+  https://www.computer.org/csdl/proceedings-article/sp/2025/223600a039/21B7QrWwN20
+- S48: NanoTag: Systems Support for Efficient Byte-Granular Overflow
+  Detection on ARM MTE (IEEE S&P 2026)
+- S49: ARM MTE Performance in Practice (arXiv 2601.11786, extended)
+  https://arxiv.org/html/2601.11786v1
+- S50: pbxscience, iOS 27 sandbox escape resurfaces Filza talk (claims
+  of MobileGestalt exploit on iPhone 17 questioned; MIE context)
+  https://pbxscience.com/ios-27-sandbox-escape-resurfaces-filza-talk-but-the-iphone-17-story-isnt-what-it-seems

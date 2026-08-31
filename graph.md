@@ -20,9 +20,9 @@ scripts/graph.py verifies them.
     08-research-methods doc  docs/08-research-methods.md
     09-mte-bugs-field doc    docs/09-mte-bugs-field.md
     10-exploit-examples doc  docs/10-exploit-examples.md
-    links        resource    resources/links.md (S1..S34)
+    links        resource    resources/links.md (S1..S50)
     local-tools  resource    resources/local-tools.md
-    papers       resource    resources/papers/ (OffensiveCon 2026 PDF)
+    papers       resource    resources/papers/ (gitignored, local copies only)
     kernel-deltas  repo      ~/Desktop/kernel-deltas (kcwatch feed, T8150 board candidate)
     W0lfSword      repo      ~/Desktop/W0lfSword (XPF, offsets.m, usbtest, panic analyzer)
     ABBS           repo      ~/Desktop/Apple-Bug-Bounty-Skill (ios-* skills, offsets.yaml)

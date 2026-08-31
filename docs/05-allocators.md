@@ -78,6 +78,36 @@ xzone index = bin_offset + bucket (S5 slide 66).
 - Buckets: DATA (pure data, no pointers), OBJC (MALLOC_TYPE_KIND_OBJC),
   POINTER 0..3 (4 on macOS, keyed hash of type_desc) (S5 slide 69).
 
+## XZone internals from the open source (S42, S43, S44)
+
+libmalloc-792 open-sourced xzone malloc with docs (S42), and Xcode 26
+documents the typed-malloc API (S43). Key facts from the source, beyond
+the S5 slides:
+
+- Segment size 4MB, slice size 16KB (S44 memento output).
+- Bucketed type isolation: 1-4 general buckets depending on
+  configuration; allocations assigned to buckets randomly by type using
+  entropy stable across executions of a binary within a boot, so an
+  attacker cannot re-roll bucketing by repeated crashes. Hardened heap
+  (iOS/watchOS) raises the bucket count (S42).
+- Early allocations: the first N allocations of a type are served from
+  a separate simple allocator (MFM) that does not enforce type
+  isolation, because they are not attacker-controlled (S42, S5).
+- TINY xzones (<=4KB) use per-chunk atomic free-lists; SMALL (4KB-32KB)
+  use per-chunk bitmaps with chunk locking, or lock-free freelists in
+  high-perf configs. SMALL can decommit individual pages within
+  multi-page slabs (S42).
+- LARGE/HUGE: private segments for large allocations (1:1:1
+  block:chunk:segment), no MTE tagging enforced yet (S42, S5).
+- Derived from mimalloc: xzones/segment groups map to mimalloc
+  heaps/tlds, but differ in typed isolation, segment-table metadata
+  separation, allocation fronts and guard pages (S42).
+- Live introspection via memento (S44): zone structure version 16,
+  `Malloc XZone with 241 zones, 10 slots`, per-zone metadata like
+  `bucket: pure data / obj-c / general`, `block_size`, `-MTE` flags,
+  bucketing_key, segment tables. This is a working template for
+  runtime XZone fingerprinting on a real device. [HW]
+
 ## XZone MTE policy
 
     Tagging decision per xzone: (TINY OR SMALL) AND (!data OR tag_data)

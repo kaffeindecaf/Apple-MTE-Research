@@ -122,6 +122,23 @@ crash under pointer authentication. Useful as a checklist for what a
 maintained SDK does before flipping the entitlement: enable, run under
 Xcode, fix findings, ship.
 
+## The other side: CVE-2026-28952, data-only LPE surviving MIE (S35-S37)
+
+2026-05, macOS 26.4.1 (25E253) on M5 with kernel MIE enabled. Calif +
+Anthropic Mythos. First public kernel exploit that works with MIE
+fully on: a local unprivileged user runs normal syscalls and gets a
+root shell. Two bugs (an overflow in `_zalloc_ro_mut` and per-CPU
+allocation bounds), no memory corruption performed, no tag exception
+ever triggered. Fixed in macOS 26.5 (2026-05-11); 55-page technical
+report withheld until patch adoption is wide.
+
+Why it belongs in the corpus: it is the counter-example to every crash
+above. The Futurae/Godot/SwiftUI crashes are MTE doing its job -
+detecting real corruption. CVE-2026-28952 is the class MTE cannot see:
+logic flaws that never produce an invalid access. Full analysis in
+[10-exploit-examples](10-exploit-examples.md) section 8 and
+[07-attack-surface](07-attack-surface.md).
+
 ## Patterns across the corpus
 
 - Third-party lifetime bugs exposed only on MTE hardware: Futurae,

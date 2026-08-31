@@ -64,6 +64,20 @@ memory bandwidth and the GPU neural accelerators.
 - A19 Pro: ProRes RAW exclusively, updated ISP + display engine.
 - LPDDR5X-9600, vapor chamber cooling in Pro models.
 
+## Die / floorplan data (S39, S40, S41)
+
+- A19 Pro die ~98.6 mm2 on TSMC N3P, ~10% smaller than A18 Pro (105
+  mm2). A19 roughly 9% smaller than A18. Transistor count estimated
+  25-30 billion (S39, S40).
+- Cache macro roughly doubled (S40 forum data, unconfirmed): P-core L2
+  shared 16MB on A19 Pro.
+- TechInsights floorplan analysis of the TMUA28 die exists but is
+  paywalled (S41).
+- Nobody has yet annotated the die area used for MTE tag storage /
+  tag RAM. The tag storage is 1/32 of DRAM (S5) but its silicon
+  footprint is unmeasured. ChipWise / TechInsights images are the raw
+  material for that analysis.
+
 ## What is NOT A19-exclusive
 
 - MIE on M5 Macs (same EMTE sync deployment).

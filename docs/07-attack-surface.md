@@ -8,6 +8,12 @@ Grounded in S5, S1, S6. Related: [03-apple-mie](03-apple-mie.md), [05-allocators
 
 - Intra-object corruption. Overwriting fields inside a live tagged block
   stays within the tag. Apple admits this by design (S5, S1).
+- Data-only attacks. The big one since 2026-05 (S35-S37): manipulate
+  kernel data structures through logic flaws without corrupting any
+  tagged memory. No tag check ever fires because no invalid access ever
+  happens. Calif's M5 LPE (CVE-2026-28952) worked exactly this way via
+  _zalloc_ro_mut. MIE has no signal to detect this class; it is outside
+  the threat model entirely.
 - Globals/static in standard MTE. EMTE canonical checking narrows this but
   the tag for untagged memory still matters; the mechanism deserves study.
 - Non-tagged size classes: XZone LARGE (32KB-2MB, TODO) and HUGE are not
@@ -135,10 +141,18 @@ Kernel-specific problems (part 3):
 
 ## Current public state
 
-- Apple: no known public bypass of MIE on A19. Claims speculative
-  resistance, frequent PRNG reseeding, SPTM-protected tag storage.
+- 2026-05: first public kernel exploit surviving MIE (S35-S37). Calif /
+  Anthropic Mythos: data-only local LPE on macOS 26.4.1 (25E253),
+  CVE-2026-28952, fixed in macOS 26.5. Chain uses two bugs
+  (_zalloc_ro_mut overflow + per-CPU allocation bounds), never performs
+  memory corruption and never triggers a tag exception, so MIE has
+  nothing to intercept. 55-page report withheld until patch adoption.
+  This is the data-only attack class: no corruption, no tag fault.
+- Apple: claims speculative resistance, frequent PRNG reseeding,
+  SPTM-protected tag storage. No public bypass that actually corrupts
+  tagged memory on A19 as of this writing.
 - Google Pixel MTE: bypassed via TikTag/StickyTags in Chrome and Linux
-  kernel (S1). Apple's design explicitly targets those primitives.
+  kernel (S13, S14). Apple's design explicitly targets those primitives.
 - OffensiveCon 2026 (S5): MIE "pretty great but not perfect", Darksword
   LPE still viable entry point, intra-object corruption viable.
 

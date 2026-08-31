@@ -1,0 +1,42 @@
+# agent-private research material: reference docs, downloads, working
+# notes. these are working copies for the researcher (me), not repo
+# content. the distilled knowledge belongs in docs/ and resources/*.md.
+#
+# reference / research documents (papers, slides, firmware, dumps)
+resources/papers/
+resources/downloads/
+resources/kernelcaches/
+resources/kdk/
+resources/corpus/
+*.pdf
+*.ipsw
+*.ipsw.part
+kernelcache*
+*.ips
+*.panic
+*.dmp
+
+# agent scratch space: notes, plans, session artifacts
+notes/
+scratch/
+.tmp/
+.hermes/
+*.tmp
+*.swp
+*~
+
+# os / editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# git
+*.orig
+*.rej
