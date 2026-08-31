@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""graph.py: verify and print the Apple-MTE-Research knowledge graph.
+
+Scans every .md file under the repo for [[wikilink]] targets, checks each
+target resolves to a file (docs/, resources/, or repo root, basename match,
+.md optional), prints nodes, edges, and dangling links.
+
+Usage:
+    python3 scripts/graph.py          full report
+    python3 scripts/graph.py --edges  edges only
+    python3 scripts/graph.py --dangling  dangling links only
+Exit code 1 if any dangling links exist (handy for a pre-commit hook).
+"""
+
+import os
+import re
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WIKI = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
+
+def md_files(root):
+    out = {}
+    for dirpath, _dirs, names in os.walk(root):
+        if ".git" in dirpath:
+            continue
+        for n in names:
+            if n.endswith(".md"):
+                p = os.path.join(dirpath, n)
+                out[os.path.splitext(n)[0]] = p
+    return out
+
+def main():
+    only_edges = "--edges" in sys.argv
+    only_dangling = "--dangling" in sys.argv
+
+    files = md_files(ROOT)
+    edges = []
+    dangling = []
+
+    for name, path in sorted(files.items()):
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        for m in WIKI.finditer(text):
+            target = m.group(1).strip()
+            if target not in files:
+                dangling.append((name, target))
+            else:
+                edges.append((name, target))
+
+    if only_dangling:
+        for src, tgt in dangling:
+            print(f"{src} -> [[{tgt}]] MISSING")
+        sys.exit(1 if dangling else 0)
+
+    print(f"nodes: {len(files)}  edges: {len(edges)}  dangling: {len(dangling)}")
+    print()
+    if not only_edges:
+        print("documents:")
+        for name in sorted(files):
+            print(f"  {name:20s} {os.path.relpath(files[name], ROOT)}")
+        print()
+    print("edges:")
+    for src, tgt in sorted(set(edges)):
+        print(f"  {src:20s} -> {tgt}")
+    print()
+    if dangling:
+        print("dangling:")
+        for src, tgt in dangling:
+            print(f"  {src:20s} -> [[{tgt}]] MISSING")
+        sys.exit(1)
+    print("graph intact")
+
+if __name__ == "__main__":
+    main()

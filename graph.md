@@ -1,0 +1,64 @@
+# Knowledge graph
+
+The minimal neural network: nodes are documents, resources, and local repos.
+Edges are typed relationships. Wikilinks in docs/ encode the same edges;
+scripts/graph.py verifies them.
+
+## Nodes
+
+    ID           TYPE        LOCATION / URL
+    README       doc         README.md
+    checklist    doc         checklist.md
+    graph        doc         graph.md
+    01-mte-basics   doc      docs/01-mte-basics.md
+    02-emte         doc      docs/02-emte.md
+    03-apple-mie    doc      docs/03-apple-mie.md
+    04-xnu-mte      doc      docs/04-xnu-mte.md
+    05-allocators   doc      docs/05-allocators.md
+    06-a19-hardware doc      docs/06-a19-hardware.md
+    07-attack-surface doc    docs/07-attack-surface.md
+    08-research-methods doc  docs/08-research-methods.md
+    links        resource    resources/links.md (S1..S24)
+    local-tools  resource    resources/local-tools.md
+    papers       resource    resources/papers/ (OffensiveCon 2026 PDF)
+    kernel-deltas  repo      ~/Desktop/kernel-deltas (kcwatch feed, T8150 board candidate)
+    W0lfSword      repo      ~/Desktop/W0lfSword (XPF, offsets.m, usbtest, panic analyzer)
+    ABBS           repo      ~/Desktop/Apple-Bug-Bounty-Skill (ios-* skills, offsets.yaml)
+
+## Edges
+
+    01-mte-basics   -specifies-> 02-emte
+    02-emte         -implemented_by-> 03-apple-mie
+    03-apple-mie    -kernel_side-> 04-xnu-mte
+    03-apple-mie    -allocator_side-> 05-allocators
+    03-apple-mie    -runs_on-> 06-a19-hardware
+    04-xnu-mte      -uses-> 05-allocators
+    05-allocators   -protected_by-> 04-xnu-mte (SPTM tag storage)
+    06-a19-hardware -enables-> 03-apple-mie (EMTE silicon, tag storage)
+    07-attack-surface -studies-> 03-apple-mie
+    07-attack-surface -studies-> 05-allocators
+    08-research-methods -feeds-> 07-attack-surface
+    08-research-methods -uses-> local-tools
+    08-research-methods -uses-> kernel-deltas
+    08-research-methods -uses-> W0lfSword
+    01-mte-basics   -grounded_in-> links (S8, S10, S11)
+    03-apple-mie    -grounded_in-> links (S1, S2, S3, S4)
+    04-xnu-mte      -grounded_in-> links (S5, S15, S16)
+    06-a19-hardware -grounded_in-> links (S17, S18)
+    kernel-deltas   -tracks-> 06-a19-hardware (T8150 kernelcache deltas)
+    W0lfSword       -resolves-> 04-xnu-mte (XPF offsets)
+    ABBS            -routes-> 08-research-methods (methodology skills)
+
+## How to use
+
+1. Start at README, jump to [[graph]].
+2. Pick a doc by node ID. Follow its wikilinks to neighbors.
+3. Verify the network stays intact: python3 scripts/graph.py
+4. New findings: add or extend a doc, add a checklist item, link it.
+
+## Open edges (research gaps)
+
+    A19 silicon die map      -> 06-a19-hardware   (nobody published tag storage die area)
+    tag PRNG stats           -> 04-xnu-mte        (no public measurements)
+    TikTag-on-A19 test       -> 07-attack-surface (no independent public test)
+    sptm.t8150 tag storage RE -> 04-xnu-mte       (SPTM firmware RE referenced, not published)
