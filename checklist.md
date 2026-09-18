@@ -186,3 +186,16 @@ an A19 or M5 device.
 - [ ] Reimplement the crash-report classifier against the symbol set in
       S55 (isMTECrash / GUARD_EXC_MTE_* / MTE_FAIL 262 / isFreed) so
       `.ips` triage matches what ReportCrash actually emits
+- [x] Contribution tooling: [mte_device_report.py](../scripts/mte_device_report.py)
+      (device identity + MTE verdict + crash/syslog collection),
+      [mte_crash_scan.py](../scripts/mte_crash_scan.py) (corpus-style MTE
+      triage of .ips/.panic, local or pulled),
+      [mte_insn_census.py](../scripts/mte_insn_census.py) (per-kext MTE
+      instruction census, fileset-aware). `scripts/tests/test_contrib_tools.py`
+      covers all three. README asks for device data (see Want to help?)
+- [ ] Collect census numbers from real hardware: A13 t8030 26.6.1 is 0 MTE
+      instructions in 6,665,832 insns / 235 kexts, so the T8150 and t8142
+      numbers are the open question. Needs a contributor kernelcache or an
+      IPSW fetch (fetch_kernelcache.py)
+- [ ] First device report from an A19 or M5 device (the tool writes it, no
+      jailbreak needed)

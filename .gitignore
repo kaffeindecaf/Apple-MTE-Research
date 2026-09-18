@@ -16,6 +16,11 @@ kernelcache*
 *.panic
 *.dmp
 
+# contributor bundles: commit the markdown report, keep device artifacts local
+contributions/_pulled-crashes/
+contributions/*/syslog.txt
+contributions/*/raw/
+
 # agent scratch space: notes, plans, session artifacts
 notes/
 scratch/
