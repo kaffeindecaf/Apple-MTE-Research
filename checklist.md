@@ -56,6 +56,10 @@ an A19 or M5 device.
 - [ ] Reverse imgact_setup_sec() decision tree from the T8150 kernelcache:
       inheritance, posix_spawn flags, hardened-process entitlement, AMFI
       opt-out (S5 slide 19). Confirm on 26.x and 27 beta
+      (offline half done 2026-09-18: the task_has_sec_soft_mode / _inherit
+      / _never_check and checked-allocations strings are present in A19
+      kernelcaches and absent in A13, so the paths are compiled in for A19.
+      Function-level RE is blocked on symbols, tier 10)
 - [ ] Map task->security_config and task_sec_policy layout and task_has_sec_*()
       helpers, feed offsets into W0lfSword offsets.m / XPF
 - [ ] Decode VM_FLAGS_MTE plumbing: PTE tag bit, CoW restrictions, tag strip
@@ -86,8 +90,12 @@ an A19 or M5 device.
       but the production XZone implementation is binary-only. RE the
       _xzm_xzone_lookup path, bucketing keys (executable_boothash), MFM
       early allocator budget
-- [ ] MTE instruction census of the T8150 kernelcache: count and locate
-      STG/LDG/IRG/STZG sites, map which subsystems actually use tags
+- [x] MTE instruction census of the T8150 kernelcache: count and locate
+      STG/LDG/IRG sites, map which subsystems actually use tags.
+      Done 2026-09-18 (S67): 884 sites in 26.6.1, 713 in 27.0, 882/711 of
+      them in com.apple.kernel __TEXT_EXEC, 2 in Libm, none elsewhere; A13
+      and A12 kernels have 0. Subsystem mapping needs symbols, tier 10.
+      See [11-t8150-kernelcache](docs/11-t8150-kernelcache.md)
 - [ ] Identify the 70+ userland processes with MTE by default: strings /
       entitlement scan across dyld shared cache, crash log telemetry. No
       public list exists
@@ -102,6 +110,9 @@ an A19 or M5 device.
       binaries in lockdown (S5). Test what lockdown actually changes
 - [ ] iOS 27 MIE expansion tracking: does MIE reach more processes, does
       Lockdown Mode broaden MTE, any A19-only 27 features. Track betas
+      (2026-09-18: kernel-side first data point in tier 10, MTE sites fell
+      884 -> 713 from 26.6.1 to 27.0 while tag strings grew; userland side
+      still open)
 - [ ] A19 vs M5 MTE parity: t8142 kernelcache and macOS KDK 26.2 has "nice
       MTE insights" (S16). Compare kernel MTE config between iOS and macOS
 
@@ -117,6 +128,8 @@ an A19 or M5 device.
       no MTE, so focus on parsing pipeline readiness for A19)
 - [ ] KDK acquisition: grab macOS KDK 26.2 (kernel.development.t8142) for
       symbolicated MTE code, mirror to resources/
+      (now the top blocker: the shipped A19 kernelcache is stripped, see
+      tier 10)
 
 ## Tier 6: writeups
 
@@ -193,9 +206,43 @@ an A19 or M5 device.
       [mte_insn_census.py](../scripts/mte_insn_census.py) (per-kext MTE
       instruction census, fileset-aware). `scripts/tests/test_contrib_tools.py`
       covers all three. README asks for device data (see Want to help?)
-- [ ] Collect census numbers from real hardware: A13 t8030 26.6.1 is 0 MTE
-      instructions in 6,665,832 insns / 235 kexts, so the T8150 and t8142
-      numbers are the open question. Needs a contributor kernelcache or an
-      IPSW fetch (fetch_kernelcache.py)
+- [x] Collect census numbers: done offline from the IPSW (S67), A13 t8030
+      26.6.1 = 0 MTE sites in its kernel, T8150 26.6.1 = 884, T8150 27.0 =
+      713. No contributor hardware needed
 - [ ] First device report from an A19 or M5 device (the tool writes it, no
       jailbreak needed)
+- [x] Settle the iOS 27.0 CoreDiagnostics question: absent from the
+      CoreDiagnostics symbol diffs across 27.0 beta 1-3 while the MTE
+      exception codes remain in the 27.0 SDK, so it moved or was renamed.
+      Finding the new home needs a 27.x userland look (S55)
+
+## Tier 10: A19 kernelcache, offline RE (started 2026-09-18)
+
+The shipped T8150 kernelcache is fetchable without a device (S67) but
+stripped, so this tier splits into what the stripped file gives us and what
+needs symbols.
+
+- [x] Fetch + unwrap pipeline: fetch_kernelcache.py ranged zip64 read,
+      pyimg4 im4p extract (auto-detects LZFSE), 22.0 MB -> 72.7 MB Mach-O
+      for 26.6.1 and 23.4 MB -> 78.1 MB for 27.0, 298/301 fileset kexts
+- [x] MTE instruction census, both builds, versus A12/A13 controls
+- [x] String inventory A19 26.6.1 vs A19 27.0 vs A13 (task_has_sec_*,
+      checked-allocations, tag_storage, mte_, SPTM counts)
+- [x] Confirm the RO-writer family exists in the shipped A19 kernel
+      (_zalloc_ro_mut, _zalloc_ro_mut_atomic and neighbours in the name
+      table at 0x44d3e8x, plus the "Invalid atomic operation" panic string)
+- [x] Tooling: [kc_strings.py](../scripts/kc_strings.py) (strings / xref /
+      diff) with its own tests, and the census resync fix that took
+      coverage from 71% to 100% of text words
+- [ ] Get symbols: development kernel or KDK (tier 5) unlocks every item
+      below
+- [ ] Attribute the 884 / 711 MTE sites to functions: how many are zalloc
+      paths (vm_memtag_load_tag / store_tag / zcram_memtag_init) versus VM
+      tag plumbing
+- [ ] Find who computes the tag value (1 IRG total; STG-family sites take a
+      register operand)
+- [ ] Diff 26.0 / 26.4 / 26.5 / 26.6.1 / 27.0 to see whether the 884 -> 713
+      move is a step or a trend
+- [ ] sptm.t8150.release extraction: does the tag-write path live there
+      (tier 4 item, same fetch machinery can grab the im4p)
+- [ ] M5 t8142 census for iOS/macOS parity

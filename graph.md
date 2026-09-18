@@ -20,7 +20,8 @@ scripts/graph.py verifies them.
     08-research-methods doc  docs/08-research-methods.md
     09-mte-bugs-field doc    docs/09-mte-bugs-field.md
     10-exploit-examples doc  docs/10-exploit-examples.md
-    links        resource    resources/links.md (S1..S66)
+    11-t8150-kernelcache doc docs/11-t8150-kernelcache.md
+    links        resource    resources/links.md (S1..S67)
     local-tools  resource    resources/local-tools.md
     papers       resource    resources/papers/ (gitignored, local copies only)
     kernel-deltas  repo      ~/Desktop/kernel-deltas (kcwatch feed, T8150 board candidate)
@@ -49,6 +50,9 @@ scripts/graph.py verifies them.
     10-exploit-examples -details-> 07-attack-surface (P0/TikTag/StickyTags)
     10-exploit-examples -details-> 07-attack-surface (physical UAF, trusted writer, PPL/SPTM)
     10-exploit-examples -grounded_in-> links (S12, S13, S14, S52, S54, S57..S62, S66)
+    11-t8150-kernelcache -measures-> 04-xnu-mte (MTE instruction census, 884 vs 0)
+    11-t8150-kernelcache -grounded_in-> links (S67)
+    11-t8150-kernelcache -feeds-> 07-attack-surface (where tag code lives, RO writer family)
     04-xnu-mte      -documents-> 10-exploit-examples (trusted writer _zalloc_ro_mut)
     07-attack-surface -grounded_in-> links (S35..S37, S52, S54, S65)
     01-mte-basics   -grounded_in-> links (S8, S10, S11)

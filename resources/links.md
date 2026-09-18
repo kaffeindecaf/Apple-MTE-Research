@@ -1,6 +1,6 @@
 # External sources
 
-Tagged S1..S66, cited from docs/. Local copies in resources/papers/ are
+Tagged S1..S67, cited from docs/. Local copies in resources/papers/ are
 gitignored (agent-private reference material, not repo content); the
 links below are the source of truth.
 
@@ -266,3 +266,16 @@ links below are the source of truth.
   (Ukraine watering holes), UNC6691 (Chinese scam sites). Kit is not
   effective against current iOS.
   https://cloud.google.com/blog/topics/threat-intelligence/coruna-powerful-ios-exploit-kit
+
+## A19 firmware and kernelcaches (added 2026-09-18)
+
+- S67: Apple IPSW kernelcache for iPhone18,1 (iPhone 17 Pro), iOS 26.6.1
+  build 23G83. Entry `kernelcache.release.v53`, IM4P + LZFSE,
+  22,035,992 bytes -> 72,712,192-byte Mach-O, 298 fileset kexts,
+  KernelManagement_host-487.100.11. Fetched 2026-09-18 via the ipsw.me
+  API + W0lfSword `scripts/fetch_kernelcache.py` (ranged zip64 read of
+  the entry, no full IPSW download) and `pyimg4 im4p extract --lzfse`.
+  Local copy gitignored; findings in
+  [11-t8150-kernelcache](../docs/11-t8150-kernelcache.md).
+  https://api.ipsw.me/v4/device/iPhone18,1?type=ipsw
+  https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75048/DA1909FD-EE14-421B-BB9C-A85335254485/iPhone18,1_26.6.1_23G83_Restore.ipsw

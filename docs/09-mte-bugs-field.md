@@ -202,9 +202,14 @@ comparing reports across builds.
 
 One unresolved item: the cross-major diff 26.5 (23F77) .vs 27.0 beta 1
 (24A5355q) lists `formatMTEPageTags:report:` and `mtePageTags` as absent
-from the 27.0 beta CoreDiagnostics symbol list. That could be a
-move/rename, a framework split, or a cross-major diff artifact. A
-same-major 27.0 beta-to-beta diff would settle it. Noted, not concluded.
+from the 27.0 beta CoreDiagnostics symbol list. Follow-up done: the
+same-major 27.0 beta 1 -> beta 2 -> beta 3 CoreDiagnostics diffs also do
+not mention them, so it is not a one-build artifact. The MTE exception
+codes still exist in the 27.0 SDK headers (`EXC_ARM_MTE_TAGCHECK_FAIL`,
+`EXC_ARM_MTE_CANONICAL_FAIL`), so this reads as a relocation or rename
+inside the reporting stack rather than a removal of MTE crash
+classification. Which binary formats the page-tag block in iOS 27 is
+still open (needs a 27.x dyld/shared-cache look).
 
 Exception codes for crash triage (S56): the iOS 26.4 and 27.0 SDK
 `mach/arm/exception.h` both define
@@ -270,8 +275,11 @@ able to gain root privileges". Consequences for this KB:
   class is probably larger. A sysdiagnose/ips corpus would answer it.
 - Does the SwiftUI weak-table bug class exist on iOS (UIKit
   equivalents) or only AppKit?
-- Where did the MTE page-tag formatter go in iOS 27.0 beta 1
-  (CoreDiagnostics diff, S55)? Move, rename, or diff artifact.
+- Where did the MTE page-tag formatter go in iOS 27.0 (CoreDiagnostics
+  diff, S55)? Narrowed: it is absent from the CoreDiagnostics symbol
+  diffs across 27.0 beta 1-3, while the MTE exception codes remain in the
+  27.0 SDK, so the symbol moved or was renamed rather than the feature
+  being dropped. Finding the new home needs a 27.x userland look.
 - Which kernel CVEs in the 26.7 / iOS 27 kernels were caught by MTE and
   which are pre-existing silent corruption? The advisories do not say
   (S65); answering it needs kernelcache diffs plus tagging-aware triage.

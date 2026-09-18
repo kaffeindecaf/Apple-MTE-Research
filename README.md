@@ -86,11 +86,12 @@ No device? These help just as much:
 | 08 | [research-methods](docs/08-research-methods.md) | MTE as a microscope, crash mining, offline tooling workflow |
 | 09 | [mte-bugs-field](docs/09-mte-bugs-field.md) | Real MTE crashes from the wild (GitHub corpus): signatures, root causes |
 | 10 | [exploit-examples](docs/10-exploit-examples.md) | Worked bypass patterns: P0 MTETest, TikTag, StickyTags, TCMA1 0xF, physical page UAF, trusted-writer abuse, PPL/SPTM bypasses |
+| 11 | [t8150-kernelcache](docs/11-t8150-kernelcache.md) | First offline look at a shipped A19 kernel: MTE instruction census (884 sites vs 0 on A13), stripped symbols, string inventory |
 
 Plus: [checklist.md](checklist.md) (tiered work queue),
 [graph.md](graph.md) (knowledge graph, verified by
 [scripts/graph.py](scripts/graph.py)),
-[resources/links.md](resources/links.md) (all sources, tagged S1..S66),
+[resources/links.md](resources/links.md) (all sources, tagged S1..S67),
 [resources/local-tools.md](resources/local-tools.md) (kernel-deltas /
 W0lfSword / XPF integration), and the contribution tools under
 [scripts/](scripts/) (see [Want to help?](#want-to-help-device-data-wanted)).
@@ -131,6 +132,11 @@ W0lfSword / XPF integration), and the contribution tools under
 - Apple's security advisories never mention MIE or tagged memory, so
   MIE-relevant fixes can only be tracked by binary diffing. Kernel CVEs
   per iOS release page: 26.6 23, 26.6.1 4, 26.7 18, iOS 27 20 (S65).
+- First offline A19 kernel measurements (S67): the shipped iOS 26.6.1
+  T8150 kernelcache holds 884 MTE instruction sites (711 in iOS 27.0),
+  all but 2 of them in com.apple.kernel, while the A13 26.6.1 kernel has
+  none. The shipped kernelcache is stripped (nsyms = 0), so function-level
+  work needs a development kernel. See [11-t8150-kernelcache](docs/11-t8150-kernelcache.md).
 
 ## Device gap
 

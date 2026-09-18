@@ -41,18 +41,19 @@ LC_SYMTAB = 0x02
 LC_FILESET_ENTRY = 0x80000035
 
 MTE_MNEMONICS = {
-    "irg": "tag generation (insert random tag)",
-    "stg": "store with tag",
-    "stzg": "store zero with tag",
-    "st2g": "store pair with tag",
-    "stz2g": "store pair zero with tag",
-    "ldg": "load with tag",
-    "stgm": "store multiple with tag",
-    "stzgm": "store multiple zero with tag",
-    "ldgm": "load multiple with tag",
-    "gmi": "tag mask insert",
-    "addg": "add with tag",
-    "subg": "subtract with tag",
+    "irg": "insert random tag (allocate)",
+    "stg": "store allocation tag",
+    "stzg": "store allocation tag, zero the granule",
+    "st2g": "store allocation tag, two granules",
+    "stz2g": "store allocation tag, zero two granules",
+    "ldg": "load allocation tag",
+    "stgm": "store allocation tags, range",
+    "stzgm": "store allocation tags and zero, range",
+    "ldgm": "load allocation tags, range",
+    "gmi": "tag mask insert (into a pointer)",
+    "addg": "add with tag adjustment",
+    "subg": "subtract with tag adjustment",
+    "dc gzva (memtag zero)": "data cache zero by VA (tag-aware zeroing)",
 }
 GZVA_LABEL = "dc gzva (memtag zero)"
 
@@ -226,15 +227,28 @@ def census(data, offset, section_filter="__text", kext_filter=None,
             code = data[section["offset"]:section["offset"] + section["size"]]
             if not code:
                 continue
-            for insn in md.disasm(code, section["addr"]):
-                unit_insns += 1
-                mnemonic = insn.mnemonic
-                if mnemonic in MTE_MNEMONICS:
-                    unit_counts[mnemonic] += 1
-                    sites.append(insn.address)
-                elif mnemonic == "dc" and insn.op_str.split(",")[0].strip() == "gzva":
-                    unit_counts[GZVA_LABEL] += 1
-                    sites.append(insn.address)
+            # capstone stops at the first word it cannot decode (padding,
+            # literal pools, jump tables inside __text). Resync 4 bytes later
+            # and keep going, so coverage is real text coverage instead of
+            # "up to the first data blob".
+            position = 0
+            length = len(code)
+            while position < length:
+                last = position
+                for insn in md.disasm(code[position:], section["addr"] + position):
+                    unit_insns += 1
+                    last = position + (insn.address - (section["addr"] + position)) + insn.size
+                    mnemonic = insn.mnemonic
+                    if mnemonic in MTE_MNEMONICS:
+                        unit_counts[mnemonic] += 1
+                        sites.append(insn.address)
+                    elif mnemonic == "dc" and insn.op_str.split(",")[0].strip() == "gzva":
+                        unit_counts[GZVA_LABEL] += 1
+                        sites.append(insn.address)
+                if last == position:
+                    position += 4  # undecodable word: skip and resync
+                else:
+                    position = last
         for key, value in unit_counts.items():
             totals[key] += value
         total_insns += unit_insns
