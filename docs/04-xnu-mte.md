@@ -1,7 +1,8 @@
 # 04: XNU MTE integration
 
 How the kernel activates, configures, and protects MTE. Grounded in S5
-(OffensiveCon 2026) unless noted. Related: [03-apple-mie](03-apple-mie.md), [05-allocators](05-allocators.md),
+(OffensiveCon 2026) unless noted; the trusted-writer and exception-code
+sections come from S54 and S56. Related: [03-apple-mie](03-apple-mie.md), [05-allocators](05-allocators.md),
 [07-attack-surface](07-attack-surface.md).
 
 ## Physical memory layout (tag storage)
@@ -127,6 +128,43 @@ The monitor layer MIE sits on, for the generation table:
 - MTE tag storage only appears in A19 IPSWs (iPhone18,4 and higher);
   SPTM defines XNU_TAG_STORAGE as its own page type in the retyping
   state machine (S16).
+
+## The trusted writer: _zalloc_ro_mut
+
+Read-only zones (credentials, task control blocks, MACF labels, signing
+state) are unwritable even for kernel code. `_zalloc_ro_mut` is the one
+function that may briefly make an RO page writable, write, and seal it
+again, with SPTM refusing every other page-table change. MIE therefore
+rests on that function's argument validation, and CVE-2026-28952 is
+exactly that: an unchecked `target + len` in its stack-area filter, where
+a wrapping `len` sent control straight to the writer, spilling bytes into
+the adjacent RO slot (S54, detail and the 26.5 fix in
+[10-exploit-examples](10-exploit-examples.md) section 10).
+
+Consequences worth carrying:
+
+- RO-zone mutation is an audit target, not a black box. The caller
+  supplies the `target` pointer, and the arithmetic between caller and
+  destination is attacker-influenced if the caller is reachable.
+- The 26.5 fix moved the overflow check ahead of the comparison and added
+  a per-CPU RO subzone bound (`TPIDR_EL1 + 0x158` / `+0xe8`). Those two
+  per-CPU fields are new offsets worth resolving against the T8150
+  kernelcache when it is available.
+- Sibling writers with the same shape: `_zalloc_ro_mut_atomic`, zone
+  resize paths, signing-flag mutators, sandbox-slot updaters.
+
+## Crash classification codes
+
+SDK headers (S56) define the two MTE exception codes XNU reports:
+
+    EXC_ARM_MTE_TAGCHECK_FAIL    0x106   MTE tag check failure
+    EXC_ARM_MTE_CANONICAL_FAIL   0x107   MTE canonical tag access fail
+
+0x106 is the plain tag mismatch; 0x107 is the canonical-check failure that
+only exists with EMTE canonical checking. Both appear in `.ips` reports as
+`Exception Codes` alongside the faulting address. The userland reporting
+path (isMTECrash, formatMTEPageTags, mtePageTags, GUARD_EXC_MTE_*_FAULT)
+landed in 26.0 RC - see [09-mte-bugs-field](09-mte-bugs-field.md).
 
 ## Open questions
 

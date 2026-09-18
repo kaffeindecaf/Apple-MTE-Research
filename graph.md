@@ -20,7 +20,7 @@ scripts/graph.py verifies them.
     08-research-methods doc  docs/08-research-methods.md
     09-mte-bugs-field doc    docs/09-mte-bugs-field.md
     10-exploit-examples doc  docs/10-exploit-examples.md
-    links        resource    resources/links.md (S1..S51)
+    links        resource    resources/links.md (S1..S66)
     local-tools  resource    resources/local-tools.md
     papers       resource    resources/papers/ (gitignored, local copies only)
     kernel-deltas  repo      ~/Desktop/kernel-deltas (kcwatch feed, T8150 board candidate)
@@ -45,9 +45,12 @@ scripts/graph.py verifies them.
     08-research-methods -uses-> W0lfSword
     09-mte-bugs-field -surveys-> 03-apple-mie (field crash signatures)
     09-mte-bugs-field -feeds-> 07-attack-surface (real bug shapes)
-    09-mte-bugs-field -grounded_in-> links (S25..S34)
+    09-mte-bugs-field -grounded_in-> links (S25..S34, S53, S55, S56, S65)
     10-exploit-examples -details-> 07-attack-surface (P0/TikTag/StickyTags)
-    10-exploit-examples -grounded_in-> links (S12, S13, S14)
+    10-exploit-examples -details-> 07-attack-surface (physical UAF, trusted writer, PPL/SPTM)
+    10-exploit-examples -grounded_in-> links (S12, S13, S14, S52, S54, S57..S62, S66)
+    04-xnu-mte      -documents-> 10-exploit-examples (trusted writer _zalloc_ro_mut)
+    07-attack-surface -grounded_in-> links (S35..S37, S52, S54, S65)
     01-mte-basics   -grounded_in-> links (S8, S10, S11)
     03-apple-mie    -grounded_in-> links (S1, S2, S3, S4)
     04-xnu-mte      -grounded_in-> links (S5, S15, S16)
@@ -69,3 +72,6 @@ scripts/graph.py verifies them.
     tag PRNG stats           -> 04-xnu-mte        (no public measurements)
     TikTag-on-A19 test       -> 07-attack-surface (no independent public test)
     sptm.t8150 tag storage RE -> 04-xnu-mte       (SPTM firmware RE referenced, not published)
+    RO-writer bounds audit   -> 10-exploit-examples (sibling writers, check-order bugs, offline)
+    narrow refcount audit    -> 07-attack-surface (uint16/uint8 counters below the tagging layer)
+    A19 SPTM bypass parity   -> 10-exploit-examples (published bypasses stop at A17 / iOS 17.4b3)

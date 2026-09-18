@@ -152,3 +152,37 @@ an A19 or M5 device.
       added to links
 - [x] .gitignore for agent-private reference material
       (resources/papers/, downloads, kernelcaches, scratch)
+
+## Tier 9: 2026-09 GitHub exploit/CVE sweep (done 2026-09-18)
+
+- [x] GitHub sweep for MTE/MIE exploits: repos, code, issues. Found the
+      pmap_tte_remove physical-UAF PoC repo (S52), the eqvol M5 field
+      crash filed the same day (S53), the Coruna kit ecosystem
+      (S57-S62), an RISC-V MIE model (S63) and a republished XNU typed
+      allocator (S64)
+- [x] New CVEs documented with attribution: CVE-2026-28952 (instruction
+      level, S54), CVE-2026-28951 / -28972 (same release window), kernel
+      CVE counts for iOS 26.6 / 26.6.1 / 26.7 / iOS 27 (S65)
+- [x] MTE crash-reporting build timeline from ipsw-diffs symbol diffs:
+      pipeline appears in 26.0 RC; MTE exception codes 0x106/0x107 in the
+      26.4 and 27.0 SDK headers (S55, S56)
+- [x] Confirmed Apple's advisories never mention MIE, so release notes
+      cannot be used to track MIE-relevant fixes (S65)
+- [x] Docs updated: [10-exploit-examples](docs/10-exploit-examples.md)
+      sections 9-11 (physical UAF, trusted writer, PPL/SPTM layer),
+      [09-mte-bugs-field](docs/09-mte-bugs-field.md) (eqvol, reporting
+      timeline, advisory gap), [07-attack-surface](docs/07-attack-surface.md)
+      (new angles + current state), [04-xnu-mte](docs/04-xnu-mte.md)
+      (trusted writer, exception codes)
+- [ ] Offline: disassemble `_zalloc_ro_mut` and the sibling RO writers in
+      a cached macOS 26.5+ kernel.development.t8142 and check every
+      bounds-check sequence for the same check-order pattern (S54)
+- [ ] Offline: enumerate narrow (uint8/uint16) refcount fields in pmap /
+      VM / IPC structures and check which ones lack overflow guards (S52)
+- [ ] Resolve the per-CPU RO subzone fields (TPIDR_EL1 + 0x158 / + 0xe8)
+      against a T8150 kernelcache
+- [ ] Settle the iOS 27.0 CoreDiagnostics question: same-major
+      beta-to-beta diff for formatMTEPageTags:report: (S55)
+- [ ] Reimplement the crash-report classifier against the symbol set in
+      S55 (isMTECrash / GUARD_EXC_MTE_* / MTE_FAIL 262 / isFreed) so
+      `.ips` triage matches what ReportCrash actually emits

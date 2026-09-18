@@ -68,6 +68,43 @@ Notable details:
 - This is a memory-safety bug in Apple's own framework, caught by
   Apple's own mitigation. MTE as a microscope working as designed.
 
+### M5 driver host killed by an MTE tag check: eqvol (S53)
+
+Open issue, Jocala/eqvol #1, filed 2026-09-18. Apple M5 Max, macOS 26.7
+(25G229), eqVol 1.1 with eqvol.driver 1.3.1. The driver host process
+(`com.apple.audio.Core-Audio-Driver-Service.helper`) is killed about
+15 ms after coreaudiod loads the driver, so the device never registers.
+Deterministic, 7/7 attempts, identical stack. Install is fine: signed,
+notarized, `spctl` accepts it.
+
+Crash signature:
+
+    termination: MTE_FAIL (code 262)
+    exception:   EXC_BAD_ACCESS (SIGKILL)
+    subtype:     EXC_ARM_MTE_TAGCHECK_FAIL at 0x0e00000c42c1c6e0
+    mteState:    enabled
+
+Faulting thread, top frames:
+
+    0  eqvol.driver  one-time initialization function for properties
+    1  libdispatch   _dispatch_client_callout
+    2  libdispatch   _dispatch_once_callout
+    3  eqvol.driver  EQVDeviceCustom.properties.unsafeMutableAddressor
+    4  eqvol.driver  EQVDevice.hasProperty(objectID:address:)
+    5  eqvol.driver  EQV_HasProperty(...)
+    6  (Apple)       -[Core_Audio_Driver has_property:reply:]
+
+Why this one is worth keeping: the reporter did the triage properly. The
+tag byte differs run to run (0x04 / 0x08 / 0x0a / 0x0c / 0x0e) while the
+untagged address 0xc42c1c6e0 lands inside a live `MALLOC_SMALL` region,
+which points at a real use-after-free or overrun into an adjacent
+allocation rather than a null or wild pointer. `mteState: enabled` says
+the driver host runs under MIE on macOS 26, and the loaded plug-in
+inherits checking: on pre-M5 Macs the same access would likely go
+unnoticed. Same shape as Futurae (S25) - third-party code, real lifetime
+bug, only visible once tagging is on, and now on macOS driver-host code
+rather than an iOS SDK.
+
 ### ZeroTier fails to launch on macOS 26.1 (S29)
 
 Open issue, zerotier/ZeroTierOne #2540 (2025-11). No window, no process
@@ -139,10 +176,76 @@ logic flaws that never produce an invalid access. Full analysis in
 [10-exploit-examples](10-exploit-examples.md) section 8 and
 [07-attack-surface](07-attack-surface.md).
 
+## MTE crash-reporting toolchain: build timeline (S55, S56)
+
+Where the field-crash machinery actually lives, from binary diffs rather
+than from Apple documentation.
+
+iOS 26.0 beta 9 (23A5336a) -> 26.0 RC (23A340), ReportCrash and
+CoreDiagnostics gain the whole MTE crash pipeline (S55):
+
+    isMTECrash, observedMTECrashWithProcessName:
+    mtePageTags, formatMTEPageTags:report:
+    "MTE Page Tags (faulting address: %p)"
+    "MTE Malloc Size Class: "
+    "Unable to determine malloc size class for empty MTE tags"
+    "Unable to determine malloc size class for uniform MTE tags"
+    GUARD_EXC_MTE_SYNC_FAULT, GUARD_EXC_MTE_ASYNC_USER_FAULT
+    kGUARD_EXC_MTE_ASYNC_KERN_FAULT
+    EXC_ARM_MTE_TAGCHECK_FAIL, "Error querying if MTE is enabled"
+    "MTE_FAIL", "isFreed", "blamedAllocation", "libsystem_sanitizers.dylib"
+
+Read: on iOS the "MTE Page Tags" block in a .ips, the malloc size class
+line and the freed-allocation blame are RC-era additions, so a crash
+report from an earlier 26.0 beta may lack them. Worth knowing before
+comparing reports across builds.
+
+One unresolved item: the cross-major diff 26.5 (23F77) .vs 27.0 beta 1
+(24A5355q) lists `formatMTEPageTags:report:` and `mtePageTags` as absent
+from the 27.0 beta CoreDiagnostics symbol list. That could be a
+move/rename, a framework split, or a cross-major diff artifact. A
+same-major 27.0 beta-to-beta diff would settle it. Noted, not concluded.
+
+Exception codes for crash triage (S56): the iOS 26.4 and 27.0 SDK
+`mach/arm/exception.h` both define
+
+    EXC_ARM_MTE_TAGCHECK_FAIL    0x106   MTE tag check failure
+    EXC_ARM_MTE_CANONICAL_FAIL   0x107   MTE canonical tag access fail
+
+0x107 is the canonical-check failure (EMTE-specific), distinct from the
+plain tag mismatch. Both numbers appear in crash logs as `Exception
+Codes` (0x106 paired with the faulting address is the usual field shape,
+see Futurae above).
+
+## Apple advisories do not track MIE (S65)
+
+None of the 2026 advisory pages checked (macOS Tahoe 26.5, iOS 26.6,
+26.6.1, 26.7, iOS 27) mentions "Memory Integrity", "memory tagging",
+MTE or tagged memory anywhere. Kernel entries arrive as generic prose:
+"unexpected system termination or corrupt kernel memory", "an app may be
+able to gain root privileges". Consequences for this KB:
+
+- You cannot track MIE-relevant fixes from release notes. Only binary
+  diffing (S55, kernel-deltas) can answer "did the tag path change".
+- A CVE description cannot tell you whether MTE caught the bug.
+- Kernel-section CVE volume per release, counted from the iOS advisory
+  pages: 26.6 (2026-07-27) 23 of 97; 26.6.1 (2026-08-17) 4 of 35;
+  26.7 (2026-09-14) 18 of 82; iOS 27 (2026-09-14) 20 of 126. Memory-safety
+  kernel bugs did not stop arriving after MIE shipped, which is the
+  expected result: MIE changes exploitability, not discovery.
+- May 2026 window (macOS Tahoe 26.5) is the one credit set worth naming:
+  CVE-2026-28952 (Calif.io + Claude/Anthropic Research) and
+  CVE-2026-28951 (Csaba Fitzl) both Kernel, plus CVE-2026-28972 (OOB
+  write, STAR Labs). See [10-exploit-examples](10-exploit-examples.md)
+  section 10.
+
 ## Patterns across the corpus
 
 - Third-party lifetime bugs exposed only on MTE hardware: Futurae,
   godot (S31). The bug existed for years, only the detector is new.
+- The same class now shows up on macOS in kernel-adjacent code: driver
+  host processes carry MIE, and a plug-in they load inherits tag
+  checking, so a third-party audio driver dies 15 ms after load (S53).
 - Framework bugs caught by the vendor's own mitigation: SwiftUI
   weak-table on macOS 27.
 - Language-runtime assembly bugs: Go's indexbyte. Granule-unaligned
@@ -167,6 +270,11 @@ logic flaws that never produce an invalid access. Full analysis in
   class is probably larger. A sysdiagnose/ips corpus would answer it.
 - Does the SwiftUI weak-table bug class exist on iOS (UIKit
   equivalents) or only AppKit?
+- Where did the MTE page-tag formatter go in iOS 27.0 beta 1
+  (CoreDiagnostics diff, S55)? Move, rename, or diff artifact.
+- Which kernel CVEs in the 26.7 / iOS 27 kernels were caught by MTE and
+  which are pre-existing silent corruption? The advisories do not say
+  (S65); answering it needs kernelcache diffs plus tagging-aware triage.
 
 ## Adding to this corpus
 

@@ -1,6 +1,6 @@
 # External sources
 
-Tagged S1..S51, cited from docs/. Local copies in resources/papers/ are
+Tagged S1..S66, cited from docs/. Local copies in resources/papers/ are
 gitignored (agent-private reference material, not repo content); the
 links below are the source of truth.
 
@@ -184,3 +184,85 @@ links below are the source of truth.
   (guarded levels, endpoint tables, PPL/TXM/SPTM generation table,
   Spectre V1 25+ chain figure, XNU_TAG_STORAGE ownership)
   https://sigreturn.com/blog/sptm-txm-memory-tagging/
+
+## 2026 exploits, CVEs and field crashes (GitHub sweep, added 2026-09-18)
+
+- S52: Indegosblade/pmap-tte-remove: XNU pmap_tte_remove physical UAF via
+  uint16 pt_desc refcount overflow. 65,537 MAP_SHARED mappings wrap the
+  refcount, one munmap frees an L3 page table with 64 live PTEs. Write
+  through 64/64 on A13 (15.5), A17 Pro (26.4), A19 (26.0, MIE on).
+  Bounty closed 2026-04-26 as "expected behavior" + program warning
+  2026-04-27. PoC sources, kernelcache diffs and per-version patch table
+  in repo. MITIGATED-NOT-FIXED through 26.6b1 (uint16 never widened).
+  https://github.com/Indegosblade/pmap-tte-remove
+- S53: Jocala/eqvol issue #1 (2026-09-18): M5 Max, macOS 26.7 (25G229),
+  coreaudiod driver-host process killed by MTE tag check, MTE_FAIL code
+  262, 7/7 attempts, tag byte varies run to run, address inside live
+  MALLOC_SMALL region. Full .ips attached.
+  https://github.com/Jocala/eqvol/issues/1
+- S54: ironpeak.be (Niels Hofmans), Pardon MIE? (2026-05-23): the
+  CVE-2026-28952 fix at instruction level. _zalloc_ro_mut pre/post
+  bounds-check asm, why the stack-area filter wrapped, sibling
+  RO-zone-writer hunt list, Linux/Android/P0 "side channel" tangents.
+  https://ironpeak.be/blog/bypassing-apple-mie/
+- S55: blacktop/ipsw-diffs (846 stars): generated per-build symbol diff
+  corpus for every IPSW transition. Source for the MTE crash-reporting
+  timeline (26.0 beta 9 23A5336a .vs 26.0 RC 23A340, and 26.5 23F77 .vs
+  27.0 beta 1 24A5355q).
+  https://github.com/blacktop/ipsw-diffs
+- S56: xybp888/iOS-SDKs: mirror of iOS SDK header trees. iPhoneOS26.4.sdk
+  and iPhoneOS27.0.sdk mach/arm/exception.h define
+  EXC_ARM_MTE_TAGCHECK_FAIL 0x106 and EXC_ARM_MTE_CANONICAL_FAIL 0x107.
+  https://github.com/xybp888/iOS-SDKs
+- S57: khanhduytran0/coruna (702 stars): the leaked Coruna exploit
+  toolkit, deobfuscated and rehosted. Per-device WebKit chain table
+  (15.4.1 jacurutu, 16.5 terrorbird, 17.0 cassowary).
+  https://github.com/khanhduytran0/coruna
+- S58: Rat5ak/CORUNA_TECHNICAL_ANALYSIS + CORUNA_IOS-MACOS_FULL_DUMP:
+  teardown of the kit and recovered samples (28 JS modules, 6 Wasm,
+  13 ARM64 binaries).
+  https://github.com/Rat5ak/CORUNA_TECHNICAL_ANALYSIS
+- S59: Billy-Ellis/coruna-buffout: WIP reimplementation of the buffout
+  WebKit exploit from the kit.
+  https://github.com/Billy-Ellis/coruna-buffout
+- S60: Hetyey/Coruna: Coruna kernel exploit + PPL/SPTM bypass
+  reimplemented in Objective-C (iPhone 13, iOS 17.0). GPU-firmware
+  power_thread redirect, hibernate_uat TTBR1 swap,
+  __arm_arch_resume_uat raw TTBR load -> broad physical write.
+  https://github.com/Hetyey/Coruna
+- S61: IvanIVGrozny/Coruna-SPTM-Bypass-RE: interface and internal
+  offsets of the kit's SPTM-bypass dylib (coruna_driver vtable,
+  kread/kwrite primitives, chip fingerprint fields).
+  https://github.com/IvanIVGrozny/Coruna-SPTM-Bypass-RE
+- S62: alfiecg24/Titan (165 stars): PPL + SPTM bypass for iOS 16.1 -
+  17.4b3 on A14-A17, built on the Coruna Rocket exploit. AGX ROP,
+  microPPL bypass, self-referencing AP PTE. Notes that Coruna's ipc_port
+  steal was patched in iOS 26 by adding data PAC to ip_nsrequest.
+  https://github.com/alfiecg24/Titan
+- S63: NeKroFR/RISC-V-MIE: Apple MIE primitives reimplemented on a
+  custom RV32IM core (PAC with QARMA-64-5, PMP, KTRR; APRR/GXF planned).
+  Useful as a clean-room model of what the hardware layer enforces.
+  https://github.com/NeKroFR/RISC-V-MIE
+- S64: itspolly/kalloc-type-rs: XNU-derived typed-allocator and zone
+  allocator sources republished under APSL-2.0 (kalloc_type views,
+  fixed-size slabs, distributed bitmaps, per-zone magazines, opt-in
+  poisoning/quarantine). Reference for allocator-level reasoning.
+  https://github.com/itspolly/kalloc-type-rs
+- S65: Apple security content pages, used for CVE attribution and
+  kernel-section counts. macOS Tahoe 26.5 (CVE-2026-28952 credited to
+  Calif.io in collaboration with Claude and Anthropic Research;
+  CVE-2026-28951 to Csaba Fitzl). iOS 26.6 released 2026-07-27,
+  iOS 26.6.1 2026-08-17, iOS 26.7 and iOS 27 2026-09-14. No advisory in
+  the 2026 set mentions Memory Integrity Enforcement or tagged memory.
+  https://support.apple.com/en-us/127115
+  https://support.apple.com/en-us/128066
+  https://support.apple.com/en-us/148282
+  https://support.apple.com/en-us/149041
+  https://support.apple.com/en-us/149034
+- S66: Google Threat Intelligence Group, Coruna: The Mysterious Journey
+  of a Powerful iOS Exploit Kit (2026-03-03). Five full iOS chains, 23
+  exploits, iOS 13.0 - 17.2.1. WebKit RCE CVE-2024-23222 delivered
+  in-the-wild. Operators: surveillance-vendor customer, UNC6353
+  (Ukraine watering holes), UNC6691 (Chinese scam sites). Kit is not
+  effective against current iOS.
+  https://cloud.google.com/blog/topics/threat-intelligence/coruna-powerful-ios-exploit-kit
